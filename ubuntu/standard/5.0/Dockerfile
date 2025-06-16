@@ -16,7 +16,13 @@ ARG DEBIAN_FRONTEND="noninteractive"
 RUN set -ex \
     && echo 'Acquire::CompressionTypes::Order:: "gz";' > /etc/apt/apt.conf.d/99use-gzip-compression \
     && apt-get update \
-    && apt install -y -qq apt-transport-https gnupg ca-certificates \
+    && apt install -y -qq apt-transport-https gnupg ca-certificates containerd curl \
+    && mkdir -p /etc/containerd \
+    && containerd config default > /etc/containerd/config.toml \
+    && curl -LO https://github.com/containerd/nerdctl/releases/download/v1.7.6/nerdctl-1.7.6-linux-amd64.tar.gz \
+    && tar -xzf nerdctl-1.7.6-linux-amd64.tar.gz \
+    && mv nerdctl /usr/local/bin && rm nerdctl-1.7.6-linux-amd64.tar.gz \
+    && /bin/bash -c containerd & sleep 3 && bash \
     && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF \
     && apt-get install software-properties-common -y -qq --no-install-recommends \
     && apt-get install -y -qq --no-install-recommends openssh-client \
